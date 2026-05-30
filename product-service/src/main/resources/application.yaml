@@ -1,3 +1,7 @@
 spring:
   application:
     name: product-service
+  # * Habilitacion de hilos virtuales
+  threads:
+    virtual:
+      enabled: true
