@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: discovery-serve
+
+# * ESTABLECIMIENTO DE PUERTO
+server:
+  port: 8761
+
+# * CONFIGURACION DE EUREKA CLIENT DESHABILITADA (COMPORTAMIENTO DE CLIENTE)
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false

@@ -5,3 +5,9 @@ spring:
   threads:
     virtual:
       enabled: true
+  # * Conexion a base de datos Mongo (Contenedor de mongodb)
+  mongodb:
+      uri: mongodb://root:example@localhost:27018/product-db?authSource=admin
+# * Configuracion de puerto
+server:
+  port: 8080
