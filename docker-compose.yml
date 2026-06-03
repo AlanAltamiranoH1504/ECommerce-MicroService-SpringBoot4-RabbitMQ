@@ -29,7 +29,7 @@ services: # * SERVICIOS QUE TENDRA LA APLICACION
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: admin
-      POSTGRES_DB: order-db
+      POSTGRES_DB: order_db
     volumes:
       - postgresql_data:/var/lib/postgresql/data
 

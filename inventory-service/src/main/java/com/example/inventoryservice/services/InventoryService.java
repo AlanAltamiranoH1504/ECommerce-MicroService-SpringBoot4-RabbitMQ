@@ -10,6 +10,7 @@ import com.example.inventoryservice.services.interfaces.IInventoryService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,6 +21,7 @@ public class InventoryService implements IInventoryService {
     private IInventoryRepository iInventoryRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public boolean isInStock(String sku, Integer quantity) {
         return iInventoryRepository.findBySku(sku).map(invet -> {
             return invet.getQuantity() >= quantity;
@@ -27,6 +29,7 @@ public class InventoryService implements IInventoryService {
     }
 
     @Override
+    @Transactional
     public InventoryResponseDTO createInventory(InventoryRequestDTO inventoryRequestDTO) {
         // ! INVENTORY BY SKU EXISTS
         boolean existeInventory = iInventoryRepository.existsBySku(inventoryRequestDTO.getSku());
@@ -41,6 +44,7 @@ public class InventoryService implements IInventoryService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<InventoryResponseDTO> getAllInventories() {
         return iInventoryRepository.findAll()
                 .stream()
@@ -55,8 +59,9 @@ public class InventoryService implements IInventoryService {
     }
 
     @Override
+    @Transactional
     public InventoryResponseDTO updateInventory(Long idInventory, InventoryRequestDTO inventoryRequestDTO) {
-        Inventory inventoryToUpdate = iInventoryRepository.findById(idInventory).orElseThrow(() -> new NotFoundException("No se encontro un inventario con id" + idInventory));
+        Inventory inventoryToUpdate = iInventoryRepository.findById(idInventory).orElseThrow(() -> new NotFoundException("No se encontro un inventario con id: " + idInventory));
 
         BeanUtils.copyProperties(inventoryRequestDTO, inventoryToUpdate);
         iInventoryRepository.save(inventoryToUpdate);
