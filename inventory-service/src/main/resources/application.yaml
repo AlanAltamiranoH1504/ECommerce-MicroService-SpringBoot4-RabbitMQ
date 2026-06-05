@@ -1,17 +1,20 @@
 spring:
   application:
     name: inventory-service
-  threads: # * Habilitación de hilos virtuales
-    virtual:
-      enabled: true
-  datasource:
-    url: jdbc:mysql://localhost:3307/inventory_db
-    username: root
-    password: admin
-    driver-class-name: com.mysql.cj.jdbc.Driver
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-server:
-  port: 8081
+  config: # ! ESPECIFICACION ACCESO A CONFIG SERVER
+    import: "optional:configserver:http://localhost:8888"
+# * Borramos configuracion y dejamos unicamente el nombre del ms
+#  threads: # * Habilitación de hilos virtuales
+#    virtual:
+#      enabled: true
+#  datasource:
+#    url: jdbc:mysql://localhost:3307/inventory_db
+#    username: root
+#    password: admin
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#  jpa:
+#    hibernate:
+#      ddl-auto: update
+#    show-sql: true
+#server:
+#  port: 8081

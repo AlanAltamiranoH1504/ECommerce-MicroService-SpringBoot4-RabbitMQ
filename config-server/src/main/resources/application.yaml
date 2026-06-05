@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: config-server
+  cloud:
+    config:
+      server:
+        git:
+#          uri: https://github.com/AlanAltamiranoH1504/ECommerce-MicroService-SpringBoot4-RabbitMQ
+          uri: file:///C:/Users/altam/OneDrive/Escritorio/Cursos/SpringBoot%204%20-%20Arquitectura%20de%20Microservicios%20-%20Fernando%20Herrera/Proyectos/ecommerce-microservice/config-data
+          default-label: main
+          clone-on-start: true
+server:
+  port: 8888
+
