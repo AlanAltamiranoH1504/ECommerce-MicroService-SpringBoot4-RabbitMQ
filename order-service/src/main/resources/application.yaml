@@ -1,19 +1,21 @@
 spring:
   application:
     name: order-service
-  datasource: # * Configuracion de base de datos
-    url: jdbc:postgresql://localhost:5433/order_db
-    username: root
-    password: admin
-    driver-class-name: org.postgresql.Driver
-  jpa: # * Configuracion de JPA
-    hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-  threads: # * Habilitacion hilos virtuales
-    virtual:
-      enabled: true
-server:
-  port: 8082
+  config: # ! HABILITACION DE LECTURA DE CONFIGURACION DESDE CONFIG SERVER
+    import: "optional:configserver:http://localhost:8888"
+#  datasource: # * Configuracion de base de datos
+#    url: jdbc:postgresql://localhost:5433/order_db
+#    username: root
+#    password: admin
+#    driver-class-name: org.postgresql.Driver
+#  jpa: # * Configuracion de JPA
+#    hibernate:
+#      ddl-auto: update
+#    properties:
+#      hibernate:
+#        dialect: org.hibernate.dialect.PostgreSQLDialect
+#  threads: # * Habilitacion hilos virtuales
+#    virtual:
+#      enabled: true
+#server:
+#  port: 8082

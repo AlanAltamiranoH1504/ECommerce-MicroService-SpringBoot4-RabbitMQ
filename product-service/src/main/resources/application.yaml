@@ -1,13 +1,15 @@
 spring:
   application:
     name: product-service
-  # * Habilitacion de hilos virtuales
-  threads:
-    virtual:
-      enabled: true
-  # * Conexion a base de datos Mongo (Contenedor de mongodb)
-  mongodb:
-      uri: mongodb://root:example@localhost:27018/product-db?authSource=admin
-# * Configuracion de puerto
-server:
-  port: 8080
+  config: # ! LECTURA DE CONFIGURACIONES DESDE CONFIG SERVER
+    import: "optional:configserver:http://localhost:8888"
+#  # * Habilitacion de hilos virtuales
+#  threads:
+#    virtual:
+#      enabled: true
+#  # * Conexion a base de datos Mongo (Contenedor de mongodb)
+#  mongodb:
+#      uri: mongodb://root:example@localhost:27018/product-db?authSource=admin
+## Configuracion de puerto
+#server:
+#  port: 8080
