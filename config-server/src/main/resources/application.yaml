@@ -6,9 +6,12 @@ spring:
       server:
         git:
 #          uri: https://github.com/AlanAltamiranoH1504/ECommerce-MicroService-SpringBoot4-RabbitMQ
-          uri: file:///C:/Users/altam/OneDrive/Escritorio/Cursos/SpringBoot%204%20-%20Arquitectura%20de%20Microservicios%20-%20Fernando%20Herrera/Proyectos/ecommerce-microservice/config-data
+#          uri: file:///C:/Users/altam/OneDrive/Escritorio/Cursos/SpringBoot%204%20-%20Arquitectura%20de%20Microservicios%20-%20Fernando%20Herrera/Proyectos/ecommerce-microservice/config-data
           default-label: main
           clone-on-start: true
+          uri: https://github.com/AlanAltamiranoH1504/ECommerce-MicroService-SpringBoot4-RabbitMQ
+          search-paths:
+            - config-data
 server:
   port: 8888
 

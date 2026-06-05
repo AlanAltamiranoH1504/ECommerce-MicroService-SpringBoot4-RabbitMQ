@@ -3,6 +3,12 @@ spring:
     name: order-service
   config: # ! HABILITACION DE LECTURA DE CONFIGURACION DESDE CONFIG SERVER
     import: "optional:configserver:http://localhost:8888"
+eureka:
+  instance:
+    instance-id: "${spring.application.name}:${random.int}"
+  client:
+    service-url:
+      defualtZone: http://localhost:8761/eureka
 #  datasource: # * Configuracion de base de datos
 #    url: jdbc:postgresql://localhost:5433/order_db
 #    username: root

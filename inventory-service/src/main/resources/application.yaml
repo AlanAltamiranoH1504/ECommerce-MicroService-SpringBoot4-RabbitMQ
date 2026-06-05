@@ -3,6 +3,12 @@ spring:
     name: inventory-service
   config: # ! ESPECIFICACION ACCESO A CONFIG SERVER
     import: "optional:configserver:http://localhost:8888"
+eureka: # ! CONFIGURACION PARA EUREKA DISCOVERY CLIENT
+  instance:
+    instance-id: "${spring.application.name}:${random.int}"
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
 # * Borramos configuracion y dejamos unicamente el nombre del ms
 #  threads: # * Habilitación de hilos virtuales
 #    virtual:
