@@ -10,6 +10,7 @@ import com.example.orderservice.exception.StockException;
 import com.example.orderservice.models.Order;
 import com.example.orderservice.models.OrderLineItem;
 import com.example.orderservice.repositories.IOrderRepository;
+import com.example.orderservice.services.client.InventoryClient;
 import com.example.orderservice.services.interfaces.IOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,8 @@ public class OrderService implements IOrderService {
     private IOrderRepository iOrderRepository;
     @Autowired
     private WebClient webClient;
+    @Autowired
+    private InventoryClient inventoryClient;
 
     @Transactional
     @Override
@@ -40,27 +43,26 @@ public class OrderService implements IOrderService {
             // * VALIDACION DE STOCK CON MS DE INVETARIO
             String sku = item.getSku();
             Long quantityRequired = item.getQuantity();
-            InStockResponse inStock = webClient // * PETICION BLOQUEANTE
-                    .get()
-                    .uri("http://localhost:8081/inventory/{sku}/quantity/{q}", sku, quantityRequired)
-                    .retrieve()
-                    .bodyToMono(InStockResponse.class)
-                    .block();
-
-            System.out.println(inStock.isStatus());
-            System.out.println(inStock);
+            InStockResponse inStock = inventoryClient.inStock(sku, quantityRequired);
+//            InStockResponse inStock = webClient // * PETICION BLOQUEANTE
+//                    .get()
+//                    .uri("http://localhost:8081/inventory/{sku}/quantity/{q}", sku, quantityRequired)
+//                    .retrieve()
+//                    .bodyToMono(InStockResponse.class)
+//                    .block();
 
             if (!inStock.isStatus()) {
                 throw new StockException("No existe stock suficiente para el producto con sku "  + sku);
             }
 
             // * STOCK DECREMENT
-            webClient
-                    .put()
-                    .uri("http://localhost:8081/inventory/decrement/{sku}/{quantity}", sku, quantityRequired)
-                    .retrieve()
-                    .bodyToMono(Void.class)
-                    .block();
+            inventoryClient.decrementStock(sku, quantityRequired);
+//            webClient
+//                    .put()
+//                    .uri("http://localhost:8081/inventory/decrement/{sku}/{quantity}", sku, quantityRequired)
+//                    .retrieve()
+//                    .bodyToMono(Void.class)
+//                    .block();
 
             OrderLineItem orderLineItem = new OrderLineItem(item.getSku(), item.getPrice(), item.getQuantity(),orderToCreate, LocalDateTime.now(), LocalDateTime.now());
             orderToCreate.getOrderLineItems().add(orderLineItem);
