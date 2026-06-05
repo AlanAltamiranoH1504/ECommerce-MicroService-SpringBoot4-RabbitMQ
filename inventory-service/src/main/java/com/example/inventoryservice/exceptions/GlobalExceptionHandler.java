@@ -38,4 +38,11 @@ public class GlobalExceptionHandler {
                 iResponseService.generateResponse(false, exception.getMessage())
         );
     }
+
+    @ExceptionHandler(StockException.class)
+    public ResponseEntity<?> handleStockException(StockException exception) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(
+                iResponseService.generateResponse(false, exception.getMessage())
+        );
+    }
 }

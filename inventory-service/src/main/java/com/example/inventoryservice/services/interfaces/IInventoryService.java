@@ -11,4 +11,5 @@ public interface IInventoryService {
     public abstract List<InventoryResponseDTO> getAllInventories();
     public abstract InventoryResponseDTO updateInventory(Long idInventory, InventoryRequestDTO inventoryRequestDTO);
     public abstract void deleteInventory(Long idInventory);
+    public abstract void decrementInventory(String sku, Integer quantity);
 }

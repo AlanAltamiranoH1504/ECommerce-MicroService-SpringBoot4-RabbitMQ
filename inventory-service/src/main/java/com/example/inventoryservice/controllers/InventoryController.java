@@ -41,4 +41,17 @@ public class InventoryController {
                 iInventoryService.updateInventory(idInventory, inventoryRequestDTO)
         );
     }
+
+    @GetMapping("/{sku}/quantity/{q}")
+    public ResponseEntity<?> inStock(@PathVariable String sku, @PathVariable Integer q) {
+        return ResponseEntity.status(HttpStatus.OK).body(
+                iResponseService.generateResponse(iInventoryService.isInStock(sku, q), "inventory")
+        );
+    }
+
+    @PutMapping("/decrement/{sku}/{quantity}")
+    public ResponseEntity<?> decrementStock(@PathVariable String sku, @PathVariable Integer quantity) {
+        iInventoryService.decrementInventory(sku, quantity);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
 }

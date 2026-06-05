@@ -1,9 +1,12 @@
 package com.example.orderservice.services;
 
+import com.example.orderservice.config.WebClientConfig;
+import com.example.orderservice.dto.InStockResponse;
 import com.example.orderservice.dto.OrderRequest;
 import com.example.orderservice.dto.OrderResponse;
 import com.example.orderservice.exception.ListEmptyException;
 import com.example.orderservice.exception.NotFoundEntityException;
+import com.example.orderservice.exception.StockException;
 import com.example.orderservice.models.Order;
 import com.example.orderservice.models.OrderLineItem;
 import com.example.orderservice.repositories.IOrderRepository;
@@ -11,6 +14,8 @@ import com.example.orderservice.services.interfaces.IOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,6 +27,8 @@ public class OrderService implements IOrderService {
 
     @Autowired
     private IOrderRepository iOrderRepository;
+    @Autowired
+    private WebClient webClient;
 
     @Transactional
     @Override
@@ -30,6 +37,31 @@ public class OrderService implements IOrderService {
         Order orderToCreate = new Order(orderNumber);
 
         for (var item: orderRequest.getOrderLineItemsRequest()) {
+            // * VALIDACION DE STOCK CON MS DE INVETARIO
+            String sku = item.getSku();
+            Long quantityRequired = item.getQuantity();
+            InStockResponse inStock = webClient // * PETICION BLOQUEANTE
+                    .get()
+                    .uri("http://localhost:8081/inventory/{sku}/quantity/{q}", sku, quantityRequired)
+                    .retrieve()
+                    .bodyToMono(InStockResponse.class)
+                    .block();
+
+            System.out.println(inStock.isStatus());
+            System.out.println(inStock);
+
+            if (!inStock.isStatus()) {
+                throw new StockException("No existe stock suficiente para el producto con sku "  + sku);
+            }
+
+            // * STOCK DECREMENT
+            webClient
+                    .put()
+                    .uri("http://localhost:8081/inventory/decrement/{sku}/{quantity}", sku, quantityRequired)
+                    .retrieve()
+                    .bodyToMono(Void.class)
+                    .block();
+
             OrderLineItem orderLineItem = new OrderLineItem(item.getSku(), item.getPrice(), item.getQuantity(),orderToCreate, LocalDateTime.now(), LocalDateTime.now());
             orderToCreate.getOrderLineItems().add(orderLineItem);
         }

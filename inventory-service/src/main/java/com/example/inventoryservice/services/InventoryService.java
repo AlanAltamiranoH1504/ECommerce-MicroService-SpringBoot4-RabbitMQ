@@ -4,6 +4,7 @@ import com.example.inventoryservice.dtos.InventoryRequestDTO;
 import com.example.inventoryservice.dtos.InventoryResponseDTO;
 import com.example.inventoryservice.exceptions.CreateEntityException;
 import com.example.inventoryservice.exceptions.NotFoundException;
+import com.example.inventoryservice.exceptions.StockException;
 import com.example.inventoryservice.models.Inventory;
 import com.example.inventoryservice.repositories.IInventoryRepository;
 import com.example.inventoryservice.services.interfaces.IInventoryService;
@@ -79,5 +80,19 @@ public class InventoryService implements IInventoryService {
             throw new NotFoundException("No existe un inventario con el id: " + idInventory);
         }
         iInventoryRepository.deleteById(idInventory);
+    }
+
+    @Transactional
+    @Override
+    public void decrementInventory(String sku, Integer quantity) {
+        Optional<Inventory> inventoryToUpdate = iInventoryRepository.findBySku(sku);
+        if (inventoryToUpdate.isEmpty()) {
+            throw new NotFoundException("No existe un inventario con el sku: " + sku);
+        }
+        if (inventoryToUpdate.get().getQuantity() < quantity) {
+            throw new StockException("No existe suficiente inventario para el producto con sku: " + sku);
+        }
+        inventoryToUpdate.get().setQuantity((inventoryToUpdate.get().getQuantity() - quantity));
+        iInventoryRepository.save(inventoryToUpdate.get());
     }
 }
