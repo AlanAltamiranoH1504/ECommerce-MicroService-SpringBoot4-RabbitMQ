@@ -3,6 +3,7 @@ package com.example.inventoryservice.controllers;
 import com.example.inventoryservice.dtos.InventoryRequestDTO;
 import com.example.inventoryservice.services.interfaces.IInventoryService;
 import com.example.inventoryservice.services.interfaces.IResponseService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,7 +19,8 @@ public class InventoryController {
     private IResponseService iResponseService;
 
     @GetMapping("")
-    public ResponseEntity<?> getAllInventories() {
+    public ResponseEntity<?> getAllInventories(HttpServletRequest request) {
+        System.out.println("Peticion atendida desde el puerto: " + request.getServerPort());
         return ResponseEntity.status(HttpStatus.OK).body(iInventoryService.getAllInventories());
     }
 

@@ -16,4 +16,4 @@ spring:
     virtual:
       enabled: true
 server:
-  port: 8082
+  port: 0
