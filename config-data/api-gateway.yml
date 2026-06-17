@@ -1,12 +1,49 @@
 spring:
-#  application:
-#    name: api-gateway
-  # ! CONFIGURACION DE KEYCLOAK
+  # application:
+  #   name: api-gateway
   security:
     oauth2:
+      # ! CONFIGURACION DE CLIENTE (NECESARIO PARA TOKENRELAY)
+      client:
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8080/realms/ecommerce-realm
+        registration:
+          api-gateway-client:
+            provider: keycloak
+            client-id: api-gateway-client
+            client-secret: 0cdgBeOQdBmqsAMVWOTRcgsviOjHfALO
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/keycloak"
+            scope: openid
+      # ! CONFIGURACION DEL SERVIDOR (NECESARIA PARA VALIDAR ENTRADA)
       resourceserver:
         jwt:
           issuer-uri: http://localhost:8080/realms/ecommerce-realm
+    cloud:
+      gateway:
+        # ! FILTRO GLOBAL (PASA EL TOKEN A TODOS LOS SERVICIOS)
+        default-filters:
+          - TokenRelay
+        routes:
+          # * RUTA MS DE PRODUCTOS
+          - id: product-service
+            uri: lb://product-service
+            predicates:
+              - Path=/products/**
+
+          # * RUTA MS DE ORDENES
+          - id: order-service
+            uri: lb://order-service
+            predicates:
+              - Path=/orders/**
+
+          # * RUTA MS DE INVENTARIO
+          - id: inventory-service
+            uri: lb://inventory-service
+            predicates:
+              - Path=/inventory/**
+
 # ! CONFIGURACION DE CONEXION CON DISCOVERY SERVER
 eureka:
   client:
