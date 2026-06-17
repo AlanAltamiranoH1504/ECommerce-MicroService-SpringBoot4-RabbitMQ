@@ -1,6 +1,7 @@
 services: # * SERVICIOS QUE TENDRA LA APLICACION
 
-  mongodb: # !CONTENEDOR DE BASE DE DATOS MONGO (db-product-service)
+  # !CONTENEDOR DE BASE DE DATOS MONGO (db-product-service)
+  mongodb:
     image: mongo:7.0.4
     container_name: mongoDBContainer
     ports:
@@ -11,7 +12,8 @@ services: # * SERVICIOS QUE TENDRA LA APLICACION
     volumes:
       - mongo_data:/data/db
 
-  inventorydb: # ! CONTENEDOR DE BASE DE DATOS MYSQL (db-inventory-service)
+  # ! CONTENEDOR DE BASE DE DATOS MYSQL (db-inventory-service)
+  inventorydb:
     image: mysql:8
     container_name: mySQLDBContainer
     ports:
@@ -21,7 +23,8 @@ services: # * SERVICIOS QUE TENDRA LA APLICACION
     volumes:
       - mysql_data:/var/lib/mysql
 
-  orderdb: # ! CONTENEDOR DE BASE DE DATOS POSTGRES (db-order-service)
+  # ! CONTENEDOR DE BASE DE DATOS POSTGRES (db-order-service)
+  orderdb:
     image: postgres:16-alpine
     container_name: postgreSQLContainer
     ports:
@@ -32,6 +35,37 @@ services: # * SERVICIOS QUE TENDRA LA APLICACION
       POSTGRES_DB: order_db
     volumes:
       - postgresql_data:/var/lib/postgresql/data
+
+  # ! CONTENEDOR DE BASE DE DATOS DE KEYCLOACK (POSTGRESS)
+  keycloak_db:
+    image: postgres:16-alpine
+    container_name: postgreSQLContainer_KeyCloak
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: keycloak_db
+    volumes:
+      - postgresql_keycloak_data:/var/lib/postgresql/data
+
+  # ! CONTENEDOR DE KEYCLOACK (AUTENTICACION Y AUTORIZACION)
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.1
+    container_name: keycloakContainer
+    command: start-dev # * Modo desarrollador (rápido y sin https)
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloak_db:5432/keycloak_db
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: password
+      # * Credenciales de usuario administrador
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8080:8080"
+    depends_on:
+      - keycloak_db
 
 #  product-service: # ! CONTENEDOR DE MS DE SPRING BOOT (product-service)
 #    build: . # * Usa el Dockerfile de la carpeta actual
@@ -48,3 +82,4 @@ volumes:
   mongo_data:
   mysql_data:
   postgresql_data:
+  postgresql_keycloak_data:
