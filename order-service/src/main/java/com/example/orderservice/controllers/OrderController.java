@@ -7,7 +7,12 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/orders")
@@ -19,13 +24,23 @@ public class OrderController {
     private IResponseService iResponseService;
 
     @PostMapping("")
-    public ResponseEntity<?> createOrder(@Valid @RequestBody OrderRequest orderRequest) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(iOrderService.createOrder(orderRequest));
+    public ResponseEntity<?> createOrder(@Valid @RequestBody OrderRequest orderRequest, @AuthenticationPrincipal Jwt jwt) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(iOrderService.createOrder(orderRequest, jwt.getSubject()));
     }
 
     @GetMapping("")
-    public ResponseEntity<?> findAllOrders() {
-        return ResponseEntity.status(HttpStatus.OK).body(iOrderService.getAllOrders());
+    public ResponseEntity<?> findAllOrders(@AuthenticationPrincipal Jwt jwt) {
+        String userId = jwt.getSubject();
+        boolean isAdmin = false;
+
+        Map<String, Object> realmAcess = jwt.getClaim("realm_access");
+        if (realmAcess != null && realmAcess.containsKey("roles")) {
+            List<String> roles = (List<String>) realmAcess.get("roles");
+            if (roles.contains("ADMIN")) {
+                isAdmin = true;
+            }
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(iOrderService.getOrders(userId, isAdmin));
     }
 
     @GetMapping("{idOrder}")

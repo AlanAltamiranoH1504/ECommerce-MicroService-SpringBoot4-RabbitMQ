@@ -19,6 +19,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,18 +29,19 @@ public class OrderService implements IOrderService {
 
     @Autowired
     private IOrderRepository iOrderRepository;
-//    @Autowired
+    //    @Autowired
 //    private WebClient webClient;
     @Autowired
     private InventoryClient inventoryClient;
 
     @Transactional
     @Override
-    public OrderResponse createOrder(OrderRequest orderRequest) {
+    public OrderResponse createOrder(OrderRequest orderRequest, String userId) {
         String orderNumber = UUID.randomUUID().toString();
         Order orderToCreate = new Order(orderNumber);
+        orderToCreate.setUser_id(userId);
 
-        for (var item: orderRequest.getOrderLineItemsRequest()) {
+        for (var item : orderRequest.getOrderLineItemsRequest()) {
             // * VALIDACION DE STOCK CON MS DE INVETARIO
             String sku = item.getSku();
             Long quantityRequired = item.getQuantity();
@@ -52,7 +54,7 @@ public class OrderService implements IOrderService {
 //                    .block();
 
             if (!inStock.isStatus()) {
-                throw new StockException("No existe stock suficiente para el producto con sku "  + sku);
+                throw new StockException("No existe stock suficiente para el producto con sku " + sku);
             }
 
             // * STOCK DECREMENT
@@ -64,7 +66,7 @@ public class OrderService implements IOrderService {
 //                    .bodyToMono(Void.class)
 //                    .block();
 
-            OrderLineItem orderLineItem = new OrderLineItem(item.getSku(), item.getPrice(), item.getQuantity(),orderToCreate, LocalDateTime.now(), LocalDateTime.now());
+            OrderLineItem orderLineItem = new OrderLineItem(item.getSku(), item.getPrice(), item.getQuantity(), orderToCreate, LocalDateTime.now(), LocalDateTime.now());
             orderToCreate.getOrderLineItems().add(orderLineItem);
         }
         iOrderRepository.save(orderToCreate);
@@ -75,14 +77,37 @@ public class OrderService implements IOrderService {
         );
     }
 
+//    @Transactional(readOnly = true)
+//    @Override
+//    public List<OrderResponse> getAllOrders() {
+//        List<OrderResponse> orderResponseList = iOrderRepository.findAll()
+//                .stream()
+//                .map(order -> {
+//                    return new OrderResponse(order.getId_order(), order.getOrder_number(), order.getOrderLineItems());
+//                }).toList();
+//        if (orderResponseList.isEmpty()) {
+//            throw new ListEmptyException("La lista de ordenes se encuentra vacia");
+//        }
+//        return orderResponseList;
+//    }
+
     @Transactional(readOnly = true)
     @Override
-    public List<OrderResponse> getAllOrders() {
-        List<OrderResponse> orderResponseList = iOrderRepository.findAll()
-                .stream()
-                .map(order -> {
-                    return new OrderResponse(order.getId_order(), order.getOrder_number(), order.getOrderLineItems());
-                }).toList();
+    public List<OrderResponse> getOrders(String userId, boolean isAdmin) {
+        List<OrderResponse> orderResponseList = new ArrayList<>();
+        if (isAdmin) {
+            orderResponseList = iOrderRepository.findAll()
+                    .stream()
+                    .map(order -> {
+                        return new OrderResponse(order.getId_order(), order.getOrder_number(), order.getOrderLineItems());
+                    }).toList();
+        } else {
+            orderResponseList = iOrderRepository.findByUserId(userId)
+                    .stream()
+                    .map(order -> {
+                        return new OrderResponse(order.getId_order(), order.getOrder_number(), order.getOrderLineItems());
+                    }).toList();
+        }
         if (orderResponseList.isEmpty()) {
             throw new ListEmptyException("La lista de ordenes se encuentra vacia");
         }

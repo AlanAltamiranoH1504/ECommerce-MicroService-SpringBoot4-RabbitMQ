@@ -16,6 +16,7 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id_order;
     private String order_number;
+    private String user_id;
     private LocalDateTime created_at;
     private LocalDateTime updated_at;
     // ! Una orden puede tener muchas lienas de orden
@@ -94,4 +95,11 @@ public class Order {
         this.orderLineItems = orderLineItems;
     }
 
+    public String getUser_id() {
+        return user_id;
+    }
+
+    public void setUser_id(String user_id) {
+        this.user_id = user_id;
+    }
 }

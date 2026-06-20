@@ -35,7 +35,9 @@ public class SecurityConfig {
 
                         // * RUTAS DE ORDENES
                         .pathMatchers(HttpMethod.POST, "/orders").hasRole("USER")
-                        .pathMatchers("/orders/**").hasRole("ADMIN")
+                        .pathMatchers(HttpMethod.DELETE, "/orders/**").hasRole("ADMIN")
+                        .pathMatchers(HttpMethod.GET, "/orders/**").hasAnyRole("ADMIN", "USER")
+                        .pathMatchers(HttpMethod.PUT, "/orders/**").hasRole("ADMIN")
 
                         .anyExchange().authenticated()
                 )
