@@ -28,8 +28,8 @@ public class OrderService implements IOrderService {
 
     @Autowired
     private IOrderRepository iOrderRepository;
-    @Autowired
-    private WebClient webClient;
+//    @Autowired
+//    private WebClient webClient;
     @Autowired
     private InventoryClient inventoryClient;
 
