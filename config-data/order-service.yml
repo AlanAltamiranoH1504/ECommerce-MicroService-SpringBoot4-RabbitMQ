@@ -27,5 +27,15 @@ management:
     web:
       exposure:
         include: "refresh, health"
+resilience4j: # * Configuracion de circuit breaker
+  circuitbreaker:
+    instances:
+      inventory: # ? Nombre del circuit breaker (debe coincidir con la anotacion de java)
+        registerHealthIndicator: true # ? Activacion de vigilancia de actuator
+        slidingWindowType: COUNT_BASED # ? Cuente la cantidad de peticion
+        slidingWindowSize: 5 # ? El sistema va a mirar el estado de las ultimas 5 peticiones
+        failureRateThreshold: 50 # ? El circuit breaker si el 50% o mas de las peticiones fallan
+        waitDurationInOpenState: 5s # ? Espera 5 segundos en estado ABIERTO antes de pasar a MEDIO-ABIERTO
+        permittedNumberOfCallsInHalfOpenState: 3 # ? Hace 3 llamadas de prueba a MITAD-ABIERTO
 server:
   port: 0
