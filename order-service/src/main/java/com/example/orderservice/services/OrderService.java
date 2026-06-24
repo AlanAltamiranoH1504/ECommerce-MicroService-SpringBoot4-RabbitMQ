@@ -12,6 +12,7 @@ import com.example.orderservice.models.OrderLineItem;
 import com.example.orderservice.repositories.IOrderRepository;
 import com.example.orderservice.services.client.InventoryClient;
 import com.example.orderservice.services.interfaces.IOrderService;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,10 +20,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class OrderService implements IOrderService {
@@ -36,6 +34,7 @@ public class OrderService implements IOrderService {
 
     @Transactional
     @Override
+    @CircuitBreaker(name = "inventory", fallbackMethod = "createOrderFallback")
     public OrderResponse createOrder(OrderRequest orderRequest, String userId) {
         String orderNumber = UUID.randomUUID().toString();
         Order orderToCreate = new Order(orderNumber);
@@ -129,5 +128,12 @@ public class OrderService implements IOrderService {
     public void deleteOrderById(Long idOrder) {
         Order orderToDelete = iOrderRepository.findById(idOrder).orElseThrow(() -> new NotFoundEntityException("No se encontro una orden con el id: " + idOrder));
         iOrderRepository.delete(orderToDelete);
+    }
+
+    // ! FALLBACK METHODS
+    public OrderResponse createOrderFallback(OrderRequest orderRequest, String userId, Throwable throwable) {
+        System.out.println("METODO FALLBACK ACTIVADO. CAUSA: " + throwable.getMessage());
+
+        return new OrderResponse(10000L, "0000", Collections.emptyList());
     }
 }
