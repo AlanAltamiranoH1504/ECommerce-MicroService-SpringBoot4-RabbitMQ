@@ -20,5 +20,12 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: http://localhost:8080/realms/ecommerce-realm
+order: # * Configuracion de actuator
+  enabled: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "refresh, health"
 server:
   port: 0
