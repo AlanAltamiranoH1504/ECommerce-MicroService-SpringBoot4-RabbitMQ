@@ -37,5 +37,17 @@ resilience4j: # * Configuracion de circuit breaker
         failureRateThreshold: 50 # ? El circuit breaker si el 50% o mas de las peticiones fallan
         waitDurationInOpenState: 5s # ? Espera 5 segundos en estado ABIERTO antes de pasar a MEDIO-ABIERTO
         permittedNumberOfCallsInHalfOpenState: 3 # ? Hace 3 llamadas de prueba a MITAD-ABIERTO
+  retry: # * Configuracion de retry pattern para consumo de servicio de invetario
+    instances:
+      inventoryRetry:
+        maxAttempts: 3 # ? Numero maximo de intentos
+        waitDuration: 2000ms # ? Tiempo entre cada intento
+        enableExponentialBackoff: true # ? Activacion de espera exponencia
+        exponentialBackoffMultiplier: 2 # ? Multiplica el tiempo de espera por 2 en cada fallo (1s, luego 2s...)
+  timelimiter:
+    instances:
+      inventoryTimeout:
+        timeoutDuration: 3000ms #? Si el servicio tarda mas de 1.5 segundos, corta la comunicacion
+        cancelRunningFuture: true # ? Cancela el hilo secundario si se cumple el timeout
 server:
   port: 0

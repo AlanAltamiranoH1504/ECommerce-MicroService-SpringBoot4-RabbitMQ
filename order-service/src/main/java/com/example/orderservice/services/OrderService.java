@@ -1,6 +1,5 @@
 package com.example.orderservice.services;
 
-import com.example.orderservice.config.WebClientConfig;
 import com.example.orderservice.dto.InStockResponse;
 import com.example.orderservice.dto.OrderRequest;
 import com.example.orderservice.dto.OrderResponse;
@@ -11,14 +10,11 @@ import com.example.orderservice.models.Order;
 import com.example.orderservice.models.OrderLineItem;
 import com.example.orderservice.repositories.IOrderRepository;
 import com.example.orderservice.services.client.InventoryClient;
+import com.example.orderservice.services.client.InventoryServiceWrapper;
 import com.example.orderservice.services.interfaces.IOrderService;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
-
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -31,10 +27,12 @@ public class OrderService implements IOrderService {
 //    private WebClient webClient;
     @Autowired
     private InventoryClient inventoryClient;
+    @Autowired
+    private InventoryServiceWrapper inventoryServiceWrapper;
 
     @Transactional
     @Override
-    @CircuitBreaker(name = "inventory", fallbackMethod = "createOrderFallback")
+//    @CircuitBreaker(name = "inventory", fallbackMethod = "createOrderFallback")
     public OrderResponse createOrder(OrderRequest orderRequest, String userId) {
         String orderNumber = UUID.randomUUID().toString();
         Order orderToCreate = new Order(orderNumber);
@@ -44,7 +42,8 @@ public class OrderService implements IOrderService {
             // * VALIDACION DE STOCK CON MS DE INVETARIO
             String sku = item.getSku();
             Long quantityRequired = item.getQuantity();
-            InStockResponse inStock = inventoryClient.inStock(sku, quantityRequired);
+            InStockResponse inStock = inventoryServiceWrapper.checkStock(sku, quantityRequired).join();
+//            InStockResponse inStock = inventoryClient.inStock(sku, quantityRequired);
 //            InStockResponse inStock = webClient // * PETICION BLOQUEANTE
 //                    .get()
 //                    .uri("http://localhost:8081/inventory/{sku}/quantity/{q}", sku, quantityRequired)
@@ -57,7 +56,8 @@ public class OrderService implements IOrderService {
             }
 
             // * STOCK DECREMENT
-            inventoryClient.decrementStock(sku, quantityRequired);
+            inventoryServiceWrapper.decrementStock(sku, quantityRequired);
+//            inventoryClient.decrementStock(sku, quantityRequired);
 //            webClient
 //                    .put()
 //                    .uri("http://localhost:8081/inventory/decrement/{sku}/{quantity}", sku, quantityRequired)
@@ -130,10 +130,10 @@ public class OrderService implements IOrderService {
         iOrderRepository.delete(orderToDelete);
     }
 
-    // ! FALLBACK METHODS
-    public OrderResponse createOrderFallback(OrderRequest orderRequest, String userId, Throwable throwable) {
-        System.out.println("METODO FALLBACK ACTIVADO. CAUSA: " + throwable.getMessage());
-
-        return new OrderResponse(10000L, "0000", Collections.emptyList());
-    }
+//    // ! FALLBACK METHODS
+//    public OrderResponse createOrderFallback(OrderRequest orderRequest, String userId, Throwable throwable) {
+//        System.out.println("METODO FALLBACK ACTIVADO. CAUSA: " + throwable.getMessage());
+//
+//        return new OrderResponse(10000L, "0000", Collections.emptyList());
+//    }
 }

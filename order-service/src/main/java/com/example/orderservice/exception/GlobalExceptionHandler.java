@@ -45,4 +45,11 @@ public class GlobalExceptionHandler {
                 iResponseService.generateReponse(false, ex.getMessage())
         );
     }
+
+    @ExceptionHandler(InvetoryServiceDownException.class)
+    public ResponseEntity<?> handleInventoryServiceDownException(InvetoryServiceDownException ex) {
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(
+                iResponseService.generateReponse(false, ex.getMessage())
+        );
+    }
 }
