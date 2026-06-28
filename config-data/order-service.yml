@@ -44,10 +44,10 @@ resilience4j: # * Configuracion de circuit breaker
         waitDuration: 2000ms # ? Tiempo entre cada intento
         enableExponentialBackoff: true # ? Activacion de espera exponencia
         exponentialBackoffMultiplier: 2 # ? Multiplica el tiempo de espera por 2 en cada fallo (1s, luego 2s...)
-  timelimiter:
-    instances:
-      inventoryTimeout:
-        timeoutDuration: 3000ms #? Si el servicio tarda mas de 1.5 segundos, corta la comunicacion
-        cancelRunningFuture: true # ? Cancela el hilo secundario si se cumple el timeout
+#  timelimiter:
+#    instances:
+#      inventoryTimeout:
+#        timeoutDuration: 3000ms #? Si el servicio tarda mas de 1.5 segundos, corta la comunicacion
+#        cancelRunningFuture: true # ? Cancela el hilo secundario si se cumple el timeout
 server:
   port: 0

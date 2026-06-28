@@ -42,7 +42,7 @@ public class OrderService implements IOrderService {
             // * VALIDACION DE STOCK CON MS DE INVETARIO
             String sku = item.getSku();
             Long quantityRequired = item.getQuantity();
-            InStockResponse inStock = inventoryServiceWrapper.checkStock(sku, quantityRequired).join();
+            InStockResponse inStock = inventoryServiceWrapper.checkStock(sku, quantityRequired);
 //            InStockResponse inStock = inventoryClient.inStock(sku, quantityRequired);
 //            InStockResponse inStock = webClient // * PETICION BLOQUEANTE
 //                    .get()
